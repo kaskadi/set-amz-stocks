@@ -1,5 +1,3 @@
-# ATTENTION: when done with setting up this file, you can go into .github/workflows/deploy.yml to use the 'deploy -v' command for this action in order to deploy your lambda
-
 service:
   name: kaskadi-update-stocks-lambda
 
@@ -16,23 +14,19 @@ provider:
   region: ${opt:region, 'eu-central-1'}
   deploymentBucket:
     name: ${env:SLS_DEPLOY_BUCKET}
-  deploymentPrefix: ${self:service.name}
-  # uncomment the following if you need to link to an API. Replace with the proper exported value from your API
-  # apiGateway:
-  #   restApiId: !ImportValue RestAPIGatewayId
-  #   restApiRootResourceId: !ImportValue RestAPIGatewayRootResourceId
+  deploymentPrefix: '@kaskadi/${self:service.name}'
 
 functions:
   KaskadiUpdateStocks:
     handler: kaskadi-update-stocks-lambda.handler
     name: ${self:service.name}
+    layers:
+      - !ImportValue KaskadiEsLayerArn
     package:
       include:
         - 'kaskadi-update-stocks-lambda.js'
         - 'node_modules/**'
-    # configure here the proper event(s) that should trigger your lambda
-    events:
-      - http:
-          method: get
-          path: hello
-          cors: true
+    environment:
+      ES_ID: ${env:ES_ID}
+      ES_SECRET: ${env:ES_SECRET}
+      ES_ENDPOINT: ${env:ES_ENDPOINT}
