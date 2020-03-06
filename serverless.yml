@@ -1,7 +1,7 @@
 # ATTENTION: when done with setting up this file, you can go into .github/workflows/deploy.yml to use the 'deploy -v' command for this action in order to deploy your lambda
 
 service:
-  name: template-kaskadi-lambda
+  name: kaskadi-update-stocks-lambda
 
 package:
   individually: true
@@ -23,12 +23,12 @@ provider:
   #   restApiRootResourceId: !ImportValue RestAPIGatewayRootResourceId
 
 functions:
-  TemplateKaskadi:
-    handler: template-kaskadi-lambda.handler
+  KaskadiUpdateStocks:
+    handler: kaskadi-update-stocks-lambda.handler
     name: ${self:service.name}
     package:
       include:
-        - 'template-kaskadi-lambda.js'
+        - 'kaskadi-update-stocks-lambda.js'
         - 'node_modules/**'
     # configure here the proper event(s) that should trigger your lambda
     events:
