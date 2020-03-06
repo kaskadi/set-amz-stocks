@@ -11,6 +11,15 @@ module.exports.handler = async (event) => {
     refresh: true,
     body
   })
+  await es.update({
+    id: warehouse,
+    index: 'warehouses',
+    body: {
+      doc: {
+        stock_last_updated: Date.now()
+      }
+    }
+  })
 }
 
 function getBulkBody(stockData, warehouse) {
