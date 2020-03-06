@@ -6,7 +6,7 @@ on:
       - 'release/**'
     paths:
       - 'serverless.yml'
-      - 'template-kaskadi-lambda.js'
+      - 'kaskadi-update-stocks-lambda.js'
 jobs:
   deploy:
     runs-on: ubuntu-latest
