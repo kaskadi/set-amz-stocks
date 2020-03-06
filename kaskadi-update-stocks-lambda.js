@@ -1,3 +1,4 @@
+const flatMap = require('array.prototype.flatmap')
 const es = require('aws-es-client')({
   id: process.env.ES_ID,
   token: process.env.ES_SECRET,
@@ -5,7 +6,7 @@ const es = require('aws-es-client')({
 })
 
 module.exports.handler = async (event) => {
-  const { stockData, warehouse } = JSON.parse(event)
+  const { stockData, warehouse } = event
   const body = getBulkBody(stockData, warehouse)
   await es.bulk({
     refresh: true,
