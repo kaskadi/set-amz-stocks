@@ -16,7 +16,7 @@ module.exports.handler = async (event) => {
 }
 
 function createBulkBody(stockData, warehouse) {
-  let bulkBody = stockData.flatMap(data => {
+  const bulkBody = stockData.flatMap(data => {
     const op = {
       update: {
         _id: data.id,
@@ -33,7 +33,7 @@ function createBulkBody(stockData, warehouse) {
     }
     return [op, doc]
   })
-  bulkBody.concat([
+  return bulkBody.concat([
     {
       update: {
         _id: warehouse,
@@ -46,5 +46,4 @@ function createBulkBody(stockData, warehouse) {
       }
     }
   ])
-  return bulkBody
 }
