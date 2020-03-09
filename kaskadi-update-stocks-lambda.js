@@ -7,25 +7,16 @@ const es = require('aws-es-client')({
 module.exports.handler = async (event) => {
   console.log('Function called', event)
   const { stockData, warehouse } = event
-  const body = getBulkBody(stockData, warehouse)
+  const body = createBulkBody(stockData, warehouse)
   console.log('Calling bulk update on ES', body)
   await es.bulk({
     refresh: true,
     body
   })
-  await es.update({
-    id: warehouse,
-    index: 'warehouses',
-    body: {
-      doc: {
-        stock_last_updated: Date.now()
-      }
-    }
-  })
 }
 
-function getBulkBody(stockData, warehouse) {
-  return stockData.flatMap(data => {
+function createBulkBody(stockData, warehouse) {
+  let bulkBody = stockData.flatMap(data => {
     const op = {
       update: {
         _id: data.id,
@@ -42,4 +33,18 @@ function getBulkBody(stockData, warehouse) {
     }
     return [op, doc]
   })
+  bulkBody.concat([
+    {
+      update: {
+        _id: warehouse,
+        _index: "warehouses"
+      }
+    },
+    {
+      doc: {
+        stockLastUpdated: Date.now()
+      }
+    }
+  ])
+  return bulkBody
 }
