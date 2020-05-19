@@ -1,5 +1,5 @@
 service:
-  name: kaskadi-update-stocks-lambda
+  name: kaskadi-set-stocks-lambda
 
 package:
   individually: true
@@ -16,14 +16,14 @@ provider:
     name: kaskadi-serverless-deployment-bucket
 
 functions:
-  KaskadiUpdateStocks:
-    handler: kaskadi-update-stocks-lambda.handler
+  KaskadiSetStocks:
+    handler: kaskadi-set-stocks-lambda.handler
     name: ${self:service.name}
     layers:
       - !ImportValue KaskadiEsLayerArn
     package:
       include:
-        - 'kaskadi-update-stocks-lambda.js'
+        - 'kaskadi-set-stocks-lambda.js'
         - 'node_modules/**'
     environment:
       ES_ID: ${env:ES_ID}
