@@ -1,10 +1,9 @@
-const es = require('aws-es-client')({
-  id: process.env.ES_ID,
-  token: process.env.ES_SECRET,
-  url: process.env.ES_ENDPOINT
-})
-
 module.exports.handler = async (event) => {
+  const es = require('aws-es-client')({
+    id: process.env.ES_ID,
+    token: process.env.ES_SECRET,
+    url: process.env.ES_ENDPOINT
+  })
   const { stockData, warehouse } = event
   const body = createBulkBody(stockData, warehouse)
   await es.bulk({
@@ -27,7 +26,8 @@ function createBulkBody(stockData, warehouse) {
       }
     }
     doc.doc.stocks[warehouse] = {
-      amount: data.quantity
+      amount: data.quantity,
+      condition: data.condition || ''
     }
     return [op, doc]
   })
