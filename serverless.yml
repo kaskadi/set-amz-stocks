@@ -15,16 +15,28 @@ provider:
   deploymentBucket:
     name: kaskadi-serverless-deployment-bucket
 
+layers:
+  KaskadiSetStocksLayer:
+    path: layer
+    name: ${self:service.name}-layer
+    description: Layer for ${self:service.name}
+    compatibleRuntimes:
+      - nodejs10.x
+      - nodejs12.x
+    licenseInfo: MIT
+    package:
+      include:
+        - '**/**'
+
 functions:
   KaskadiSetStocks:
     handler: kaskadi-set-stocks-lambda.handler
     name: ${self:service.name}
     layers:
-      - !ImportValue KaskadiEsLayerArn
+      - { Ref: KaskadiSetStocksLayerLambdaLayer}
     package:
       include:
         - 'kaskadi-set-stocks-lambda.js'
-        - 'node_modules/**'
     environment:
       ES_ID: ${env:ES_ID}
       ES_SECRET: ${env:ES_SECRET}

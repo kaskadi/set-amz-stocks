@@ -20,7 +20,5 @@
   "bugs": {
     "url": "https://github.com/kaskadi/kaskadi-set-stocks-lambda/issues"
   },
-  "homepage": "https://github.com/kaskadi/kaskadi-set-stocks-lambda#readme",
-  "devDependencies": {},
-  "dependencies": {}
+  "homepage": "https://github.com/kaskadi/kaskadi-set-stocks-lambda#readme"
 }
