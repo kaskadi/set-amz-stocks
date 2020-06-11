@@ -41,22 +41,21 @@ function getOp(data, provider) {
 
 function getBody(data, warehouse, provider) {
   let body = { doc: { stocks: {} } }
-  let stock = { idType: 'EAN', stockMap: {} }
-  stock.stockMap[data.id] = {
-    quantity: data.quantity,
-    condition: data.condition || ''
-  }
   if (provider === 'amz') {
-    stock.idType = 'ASIN'
     body = {
       script: {
         lang: 'painless',
-        source: `ctx._source['stocks']['${warehouse}'] = ${JSON.stringify(stock)}`
+        source: `ctx._source.stocks.${warehouse} = [ 'idType': 'ASIN', 'stockMap': [ 'quantity': ${data.quantity}, 'condition': ${data.condition || ''} ] ]`
       },
       query: { match: {} }
     }
     body.query.match[`asin.${warehouse.split('_')[1].toUpperCase()}`] = data.id
   } else {
+    let stock = { idType: 'EAN', stockMap: {} }
+    stock.stockMap[data.id] = {
+      quantity: data.quantity,
+      condition: data.condition || ''
+    }
     body.doc.stocks[warehouse] = stock
   }
   return body
