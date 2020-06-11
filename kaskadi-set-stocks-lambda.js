@@ -49,7 +49,7 @@ function getBody(data, warehouse, provider) {
       },
       query: { match: {} }
     }
-    body.query.match[`asin.${warehouse.split('_')[1].toUpperCase()}`] = data.id
+    body.query.match[`asin.${warehouse}`] = data.id
   } else {
     let stock = { idType: 'EAN', stockMap: {} }
     stock.stockMap[data.id] = {
