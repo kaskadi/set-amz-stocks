@@ -45,7 +45,7 @@ function getBody(data, warehouse, provider) {
     body = {
       script: {
         lang: 'painless',
-        source: `ctx._source.stocks.${warehouse} = [ 'idType': 'ASIN', 'stockMap': [ 'quantity': ${data.quantity}, 'condition': ${data.condition || ''} ] ]`
+        source: `ctx._source.stocks.${warehouse} = [ 'idType': 'ASIN', 'stockMap': [ ${data.id}: [ 'quantity': ${data.quantity}, 'condition': ${data.condition || ''} ] ] ]`
       },
       query: { match: {} }
     }
