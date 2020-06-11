@@ -32,6 +32,7 @@ functions:
   KaskadiSetStocks:
     handler: kaskadi-set-stocks-lambda.handler
     name: ${self:service.name}
+    timeout: 30
     layers:
       - { Ref: KaskadiSetStocksLayerLambdaLayer}
     package:
