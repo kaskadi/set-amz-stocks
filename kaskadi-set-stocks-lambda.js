@@ -13,7 +13,7 @@ module.exports.handler = async (event) => {
 }
 
 function createBulkBody(stockData, warehouse, provider) {
-  return processStockData(stockData, warehouse, provider).concat([
+  return stockData.flatMap(processStockData(warehouse, provider)).concat([
     {
       update: {
         _id: warehouse,
@@ -28,48 +28,37 @@ function createBulkBody(stockData, warehouse, provider) {
   ])
 }
 
-function processStockData(stockData, warehouse, provider) {
-  return stockData.flatMap(data => {
-    let op = {
-      update: {
-        _id: data.id,
-        _index: 'products'
-      }
+function processStockData(warehouse, provider) {
+  return data => [getOp(data, provider), getBody(data, warehouse, provider)]
+}
+
+function getOp(data, provider) {
+  let op = { update: { _id: data.id, _index: 'products' } }
+  if (provider === 'amz') {
+    op = { updateByQuery: { _index: 'products', _refresh: true } }
+  }
+  return op
+}
+
+function getBody(data, warehouse, provider) {
+  let body = { doc: { stocks: {} } }
+  let stock = { idType: 'EAN', stockMap: {} }
+  stock.stockMap[data.id] = {
+    amount: data.quantity,
+    condition: data.condition || ''
+  }
+  if (provider === 'amz') {
+    stock.idType = 'ASIN'
+    body = {
+      script: {
+        lang: 'painless',
+        source: `ctx._source['stocks'][${warehouse}] = ${JSON.stringify(stock)}`
+      },
+      query: { match: {} }
     }
-    let body = {}
-    const stockInfo = {
-      amount: data.quantity,
-      condition: data.condition || ''
-    }
-    if (provider === 'amz') {
-      op = {
-        updateByQuery: {
-          _index: 'products',
-          _refresh: true
-        }
-      }
-      body = {
-        script: {
-          lang: 'painless',
-          source: `ctx._source['stocks'][${warehouse}] = { asin: ${data.id}, stock: ${JSON.stringify(stockInfo)} }`
-        },
-        query: {
-          filtered: {
-            filter: {
-              term: {}
-            }
-          }
-        }
-      }
-      body.query.filtered.filter.term[`asin.${warehouse.split('_')[1].toUpperCase()}`] = data.id
-    } else {
-      body = {
-        doc: {
-          stocks: {}
-        }
-      }
-      body.doc.stocks[warehouse] = stockInfo
-    }
-    return [op, body]
-  })
+    body.query.match[`asin.${warehouse.split('_')[1].toUpperCase()}`] = data.id
+  } else {
+    body.doc.stocks[warehouse] = stock
+  }
+  return body
 }
