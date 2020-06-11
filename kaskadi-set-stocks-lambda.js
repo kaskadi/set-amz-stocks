@@ -6,10 +6,10 @@ module.exports.handler = async (event) => {
   })
   const { stockData, warehouse, provider } = event
   const body = createBulkBody(stockData, warehouse, provider)
-  // await es.bulk({
-  //   refresh: true,
-  //   body
-  // })
+  await es.bulk({
+    refresh: true,
+    body
+  })
 }
 
 function createBulkBody(stockData, warehouse, provider) {
