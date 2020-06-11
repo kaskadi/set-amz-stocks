@@ -43,7 +43,7 @@ function getBody(data, warehouse, provider) {
   let body = { doc: { stocks: {} } }
   let stock = { idType: 'EAN', stockMap: {} }
   stock.stockMap[data.id] = {
-    amount: data.quantity,
+    quantity: data.quantity,
     condition: data.condition || ''
   }
   if (provider === 'amz') {
@@ -51,7 +51,7 @@ function getBody(data, warehouse, provider) {
     body = {
       script: {
         lang: 'painless',
-        source: `ctx._source['stocks'][${warehouse}] = ${JSON.stringify(stock)}`
+        source: `ctx._source['stocks']['${warehouse}'] = ${JSON.stringify(stock)}`
       },
       query: { match: {} }
     }
