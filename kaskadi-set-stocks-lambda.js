@@ -7,10 +7,10 @@ const es = require('aws-es-client')({
 module.exports.handler = async (event) => {
   const { stockData, warehouse, idType } = event
   const body = await createBulkBody(stockData, warehouse, idType)
-  await es.bulk({
-    refresh: true,
-    body
-  })
+  // await es.bulk({
+  //   refresh: true,
+  //   body
+  // })
 }
 
 async function createBulkBody(stockData, warehouse, idType) {
@@ -37,7 +37,7 @@ async function transformStockData(stockData, warehouse, idType) {
     const searchData = await es.search({ index: 'products', body: searchBody })
     stockData = searchData.body.hits.hits.map(doc => {
       return {
-        ...stockData.filter(data => data.id === doc._source.asin[warehouse])[0],
+        ...stockData.filter(data => doc._source.asin[warehouse].includes(data.id))[0],
         docId: doc._id
       }
     })
