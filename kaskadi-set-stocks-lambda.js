@@ -6,10 +6,10 @@ module.exports.handler = async (event) => {
   })
   const { stockData, warehouse, provider } = event
   const body = createBulkBody(stockData, warehouse, provider)
-  await es.bulk({
-    refresh: true,
-    body
-  })
+  // await es.bulk({
+  //   refresh: true,
+  //   body
+  // })
 }
 
 function createBulkBody(stockData, warehouse, provider) {
@@ -33,11 +33,10 @@ function processStockData(warehouse, provider) {
 }
 
 function getOp(data, provider) {
-  let op = { update: { _id: data.id, _index: 'products' } }
-  if (provider === 'amz') {
-    op = { updateByQuery: { _index: 'products', _refresh: true } }
-  }
-  return op
+  return provider === 'amz' ?
+  { updateByQuery: { _index: 'products', _refresh: true } }
+  :
+  { update: { _id: data.id, _index: 'products' } }
 }
 
 function getBody(data, warehouse, provider) {
