@@ -1,19 +1,21 @@
+const es = require('aws-es-client')({
+  id: process.env.ES_ID,
+  token: process.env.ES_SECRET,
+  url: process.env.ES_ENDPOINT
+})
+
 module.exports.handler = async (event) => {
-  const es = require('aws-es-client')({
-    id: process.env.ES_ID,
-    token: process.env.ES_SECRET,
-    url: process.env.ES_ENDPOINT
-  })
-  const { stockData, warehouse, provider } = event
-  const body = createBulkBody(stockData, warehouse, provider)
+  const { stockData, warehouse, idType } = event
+  const body = await createBulkBody(stockData, warehouse, idType)
   await es.bulk({
     refresh: true,
     body
   })
 }
 
-function createBulkBody(stockData, warehouse, provider) {
-  return stockData.flatMap(processStockData(warehouse, provider)).concat([
+async function createBulkBody(stockData, warehouse, idType) {
+  stockData = await transformStockData(stockData, warehouse, idType)
+  return stockData.flatMap(processStockData(warehouse, idType)).concat([
     {
       update: {
         _id: warehouse,
@@ -28,35 +30,37 @@ function createBulkBody(stockData, warehouse, provider) {
   ])
 }
 
-function processStockData(warehouse, provider) {
-  return data => [getOp(data, provider), getBody(data, warehouse, provider)]
-}
-
-function getOp(data, provider) {
-  return provider === 'amz' ?
-  { updateByQuery: { _index: 'products', _refresh: true } }
-  :
-  { update: { _id: data.id, _index: 'products' } }
-}
-
-function getBody(data, warehouse, provider) {
-  let body = { doc: { stocks: {} } }
-  if (provider === 'amz') {
-    body = {
-      script: {
-        lang: 'painless',
-        source: `ctx._source.stocks.${warehouse} = [ 'idType': 'ASIN', 'stockMap': [ ${data.id}: [ 'quantity': ${data.quantity}, 'condition': ${data.condition || ''} ] ] ]`
-      },
-      query: { match: {} }
-    }
-    body.query.match[`asin.${warehouse}`] = data.id
+async function transformStockData(stockData, warehouse, idType) {
+  if (idType === 'ASIN') {
+    let searchBody = { from: 0, size: 5000, query: { match: {} } }
+    searchBody.query.match[`asin.${warehouse}`] = stockData.map(data => data.id).join(' ')
+    const searchData = await es.search({ index: 'products', body: searchBody })
+    stockData = searchData.body.hits.hits.map(doc => {
+      return {
+        ...stockData.filter(data => data.id === doc._source.asin[warehouse])[0],
+        docId: doc._id
+      }
+    })
   } else {
-    let stock = { idType: 'EAN', stockMap: {} }
+    stockData = stockData.map(data => {
+      return {
+        ...data,
+        docId: data.id
+      }
+    })
+  }
+  return stockData
+}
+
+function processStockData(warehouse, idType) {
+  return data => {
+    let body = { doc: { stocks: {} } }
+    let stock = { idType, stockMap: {} }
     stock.stockMap[data.id] = {
       quantity: data.quantity,
       condition: data.condition || ''
     }
     body.doc.stocks[warehouse] = stock
+    return [{ update: { _id: data.docId, _index: 'products' } }, body]
   }
-  return body
 }
