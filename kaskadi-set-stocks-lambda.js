@@ -5,13 +5,13 @@ const es = require('aws-es-client')({
 })
 
 module.exports.handler = async (event) => {
-  console.log(event)
+  console.log(JSON.stringify(event, null, 2))
   const { stockData, warehouse, idType } = event
   const body = await createBulkBody(stockData, warehouse, idType)
   await es.bulk({
     refresh: true,
     body
-  })
+  }).then(console.log).catch(console.log)
 }
 
 async function createBulkBody(stockData, warehouse, idType) {
@@ -62,6 +62,15 @@ function processStockData(warehouse, idType) {
       condition: data.condition || ''
     }
     body.doc.stocks[warehouse] = stock
-    return [{ update: { _id: data.docId, _index: 'products' } }, body]
+    return [
+      {
+        update: {
+          _id: data.docId,
+          _index: 'products',
+          retry_on_conflict: 3
+        }
+      },
+      body
+    ]
   }
 }
