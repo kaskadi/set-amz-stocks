@@ -6,16 +6,16 @@ const es = require('aws-es-client')({
 
 module.exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2))
-  const body = await createBulkBody(event)
   await es.bulk({
     refresh: true,
-    body
+    body: await createBulkBody(event)
   }).then(res => {console.log(JSON.stringify(res, null, 2))}).catch(err => {console.log(JSON.stringify(err, null, 2))})
 }
 
 async function createBulkBody(event) {
-  const transformedStockData = await transformStockData(event)
-  return transformedStockData.flatMap(processStockData(event)).concat([
+  const updateData = await getUpdateData(event)
+  const { warehouse } = event
+  return updateData.flatMap(processUpdateData(event)).concat([
     {
       update: {
         _id: warehouse,
@@ -30,17 +30,9 @@ async function createBulkBody(event) {
   ])
 }
 
-async function transformStockData({stockData, warehouse, idType}) {
+async function getUpdateData({stockData, warehouse, idType}) {
   if (idType === 'ASIN') {
-    let searchBody = { from: 0, size: 5000, query: { match: {} } }
-    searchBody.query.match[`asin.${warehouse}`] = stockData.map(data => data.id).join(' ')
-    const searchData = await es.search({ index: 'products', body: searchBody })
-    stockData = searchData.body.hits.hits.map(doc => {
-      return {
-        ...stockData.filter(data => doc._source.asin[warehouse].includes(data.id))[0],
-        docId: doc._id
-      }
-    })
+    stockData = await getStockDataForAsins(stockData, warehouse)
   } else {
     stockData = stockData.map(data => {
       return {
@@ -52,12 +44,26 @@ async function transformStockData({stockData, warehouse, idType}) {
   return stockData
 }
 
-function processStockData({stockData, warehouse, idType}) {
+async function getStockDataForAsins(stockData, warehouse) {
+  let searchBody = { from: 0, size: 5000, query: { match: {} } }
+  searchBody.query.match[`asin.${warehouse}`] = stockData.map(data => data.id).join(' ')
+  const searchData = await es.search({ index: 'products', body: searchBody })
+  return searchData.body.hits.hits.map(doc => {
+    const newStockData = stockData
+    const currentStockData = doc._source.stocks[warehouse].stockData
+    return {
+      stockData: [...newStockData, ...currentStockData.filter(stockData => !newStockData.map(data => data.id).includes(stockData.id))],
+      docId: doc._id
+    }
+  })
+}
+
+function processUpdateData({warehouse, idType}) {
   return data => {
     let body = { doc: { stocks: {} } }
     body.doc.stocks[warehouse] = {
       idType,
-      stockData
+      stockData: data.stockData
     }
     return [
       {
