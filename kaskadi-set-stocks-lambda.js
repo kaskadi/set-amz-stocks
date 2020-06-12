@@ -11,7 +11,7 @@ module.exports.handler = async (event) => {
   await es.bulk({
     refresh: true,
     body
-  }).then(console.log).catch(console.log)
+  }).then(res => {console.log(JSON.strinfify(res, null, 2))}).catch(err => {console.log(JSON.stringify(err, null, 2))})
 }
 
 async function createBulkBody(stockData, warehouse, idType) {
