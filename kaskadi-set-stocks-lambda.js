@@ -6,17 +6,16 @@ const es = require('aws-es-client')({
 
 module.exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2))
-  const { stockData, warehouse, idType } = event
-  const body = await createBulkBody(stockData, warehouse, idType)
+  const body = await createBulkBody(event)
   await es.bulk({
     refresh: true,
     body
   }).then(res => {console.log(JSON.stringify(res, null, 2))}).catch(err => {console.log(JSON.stringify(err, null, 2))})
 }
 
-async function createBulkBody(stockData, warehouse, idType) {
-  stockData = await transformStockData(stockData, warehouse, idType)
-  return stockData.flatMap(processStockData(warehouse, idType)).concat([
+async function createBulkBody(event) {
+  const transformedStockData = await transformStockData(event)
+  return transformedStockData.flatMap(processStockData(event)).concat([
     {
       update: {
         _id: warehouse,
@@ -31,7 +30,7 @@ async function createBulkBody(stockData, warehouse, idType) {
   ])
 }
 
-async function transformStockData(stockData, warehouse, idType) {
+async function transformStockData({stockData, warehouse, idType}) {
   if (idType === 'ASIN') {
     let searchBody = { from: 0, size: 5000, query: { match: {} } }
     searchBody.query.match[`asin.${warehouse}`] = stockData.map(data => data.id).join(' ')
@@ -53,15 +52,13 @@ async function transformStockData(stockData, warehouse, idType) {
   return stockData
 }
 
-function processStockData(warehouse, idType) {
+function processStockData({stockData, warehouse, idType}) {
   return data => {
     let body = { doc: { stocks: {} } }
-    let stock = { idType, stockMap: {} }
-    stock.stockMap[data.id] = {
-      quantity: data.quantity,
-      condition: data.condition || ''
+    body.doc.stocks[warehouse] = {
+      idType,
+      stockData
     }
-    body.doc.stocks[warehouse] = stock
     return [
       {
         update: {
