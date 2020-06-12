@@ -5,6 +5,7 @@ const es = require('aws-es-client')({
 })
 
 module.exports.handler = async (event) => {
+  console.log(event)
   const { stockData, warehouse, idType } = event
   const body = await createBulkBody(stockData, warehouse, idType)
   await es.bulk({
