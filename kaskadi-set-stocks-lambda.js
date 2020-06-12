@@ -36,7 +36,7 @@ async function getUpdateData({stockData, warehouse, idType}) {
   } else {
     stockData = stockData.map(data => {
       return {
-        ...data,
+        stockData: {...data},
         docId: data.id
       }
     })
