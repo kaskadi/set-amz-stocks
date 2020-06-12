@@ -49,7 +49,7 @@ async function getStockDataForAsins(stockData, warehouse) {
   searchBody.query.match[`asin.${warehouse}`] = stockData.map(data => data.id).join(' ')
   const searchData = await es.search({ index: 'products', body: searchBody })
   return searchData.body.hits.hits.map(doc => {
-    const newStockData = stockData
+    const newStockData = stockData.filter(data => doc._source.asin[warehouse].includes(data.id))
     const currentStockData = doc._source.stocks[warehouse] ? doc._source.stocks[warehouse].stockData : []
     return {
       stockData: [...newStockData, ...currentStockData.filter(stockData => !newStockData.map(data => data.id).includes(stockData.id))],
