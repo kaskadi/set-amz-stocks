@@ -1,6 +1,6 @@
 module.exports = async ({stockData, warehouse, idType}) => {
   if (idType === 'ASIN') {
-    stockData = (await searchAllProducts(stockData, warehouse)).map(doc => {
+    stockData = (await searchMatchingProducts(stockData, warehouse)).map(doc => {
       const newStockData = stockData.filter(data => doc._source.asin[warehouse].includes(data.id))
       const currentStockData = doc._source.stocks[warehouse] ? doc._source.stocks[warehouse].stockData : []
       return {
@@ -19,7 +19,7 @@ module.exports = async ({stockData, warehouse, idType}) => {
   return stockData
 }
 
-async function searchAllProducts(stockData, warehouse) {
+async function searchMatchingProducts(stockData, warehouse) {
   let from = 0
   const size = 500
   let searchBody = { query: { match: {} } }
