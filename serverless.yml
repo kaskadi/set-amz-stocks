@@ -1,5 +1,5 @@
 service:
-  name: kaskadi-set-stocks-lambda
+  name: set-stocks
 
 package:
   individually: true
@@ -16,7 +16,7 @@ provider:
     name: kaskadi-serverless-deployment-bucket
 
 layers:
-  KaskadiSetStocksLayer:
+  SetStocksLayer:
     path: layer
     name: ${self:service.name}-layer
     description: Layer for ${self:service.name}
@@ -29,15 +29,15 @@ layers:
         - '**/**'
 
 functions:
-  KaskadiSetStocks:
-    handler: kaskadi-set-stocks-lambda.handler
+  SetStocks:
+    handler: set-stocks.handler
     name: ${self:service.name}
     timeout: 30
     layers:
-      - { Ref: KaskadiSetStocksLayerLambdaLayer}
+      - { Ref: SetStocksLayerLambdaLayer}
     package:
       include:
-        - 'kaskadi-set-stocks-lambda.js'
+        - 'set-stocks.js'
         - 'helpers/**'
     environment:
       ES_ID: ${env:ES_ID}
