@@ -14,6 +14,13 @@ provider:
   region: eu-central-1
   deploymentBucket:
     name: kaskadi-serverless-deployment-bucket
+  stackTags:
+    app: kaskadi
+  tags:
+    app: kaskadi
+    service: ${self:service.name}
+    logical-unit: stocks
+    type: invocation
 
 layers:
   SetStocksLayer:
