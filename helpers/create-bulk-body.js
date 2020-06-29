@@ -4,22 +4,26 @@ module.exports = ({ marketplace, marketplaceStockData }) => {
 }
 
 function getStockBulkBody (warehouse, marketplaceStockData) {
-  return marketplaceStockData.flatMap(data => [
-    {
+  return marketplaceStockData.flatMap(getEanStocks(warehouse))
+}
+
+function getEanStocks (warehouse) {
+  return data => {
+    const op = {
       update: {
         _id: data.ean,
         _index: "products"
       }
-    },
-    {
-      doc: {
-        stocks: {
-          warehouse,
-          stockData: data.eanStockData
-        }
-      }
     }
-  ])
+    let body = { doc: { stocks: {} } }
+    body.doc.stocks[warehouse] = data.eanStockData.map(eanData => {
+      return {
+        asin: eanData.asin,
+        stockData: eanData.asinStockData
+      }
+    })
+    return [op, body]
+  }
 }
 
 function getWarehouseBulkBody (warehouse) {
