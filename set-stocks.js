@@ -1,6 +1,6 @@
 module.exports.handler = async (event) => {
   const createBulkBody = require('./helpers/create-bulk-body.js')
-  const setStocks = require('./helpers/set-stocks.js')
+  const setStocks = require('./helpers/set-es-stocks.js')
   return await setStocks(createBulkBody(event.responsePayload))
   .then(res => {
     console.log(JSON.stringify(res, null, 2))
