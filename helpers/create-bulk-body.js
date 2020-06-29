@@ -1,8 +1,32 @@
-module.exports = (updateData, processUpdateDataHandler, event) => {
-  return updateData.flatMap(processUpdateDataHandler(event)).concat([
+module.exports = ({ marketplace, marketplaceStockData }) => {
+  const warehouse = `amz_${marketplace.toLowerCase()}`
+  return getStockBulkBody(warehouse, marketplaceStockData).concat(getWarehouseBulkBody(warehouse))
+}
+
+function getStockBulkBody (warehouse, marketplaceStockData) {
+  return marketplaceStockData.flatMap(data => [
     {
       update: {
-        _id: event.warehouse,
+        _id: data.ean,
+        _index: "products"
+      }
+    },
+    {
+      doc: {
+        stocks: {
+          warehouse,
+          stockData: data.eanStockData
+        }
+      }
+    }
+  ])
+}
+
+function getWarehouseBulkBody (warehouse) {
+  return [
+    {
+      update: {
+        _id: warehouse,
         _index: "warehouses"
       }
     },
@@ -11,5 +35,5 @@ module.exports = (updateData, processUpdateDataHandler, event) => {
         stockLastUpdated: Date.now()
       }
     }
-  ])
+  ]
 }
