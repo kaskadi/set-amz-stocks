@@ -4,10 +4,10 @@ module.exports = ({ marketplace, marketplaceStockData }) => {
 }
 
 function getStockBulkBody (warehouse, marketplaceStockData) {
-  return marketplaceStockData.flatMap(getEanStocks(warehouse))
+  return marketplaceStockData.flatMap(getOpBodyDuplet(warehouse))
 }
 
-function getEanStocks (warehouse) {
+function getOpBodyDuplet (warehouse) {
   return data => {
     const op = {
       update: {
