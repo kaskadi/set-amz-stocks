@@ -6,7 +6,7 @@ on:
       - 'release/**'
     paths:
       - 'serverless.yml'
-      - 'set-stocks.js'
+      - 'set-amz-stocks.js'
       - 'helpers/**'
       - 'layer/**'
 jobs:

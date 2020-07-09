@@ -1,5 +1,5 @@
 service:
-  name: set-stocks
+  name: set-amz-stocks
 
 package:
   individually: true
@@ -23,7 +23,7 @@ provider:
     type: invocation
 
 layers:
-  SetStocksLayer:
+  SetAmzStocksLayer:
     path: layer
     name: ${self:service.name}-layer
     description: Layer for ${self:service.name}
@@ -36,15 +36,15 @@ layers:
         - '**/**'
 
 functions:
-  SetStocks:
-    handler: set-stocks.handler
+  SetAmzStocks:
+    handler: set-amz-stocks.handler
     name: ${self:service.name}
     timeout: 30
     layers:
-      - { Ref: SetStocksLayerLambdaLayer}
+      - { Ref: SetAmzStocksLayerLambdaLayer}
     package:
       include:
-        - 'set-stocks.js'
+        - 'set-amz-stocks.js'
         - 'helpers/**'
     environment:
       ES_ID: ${env:ES_ID}

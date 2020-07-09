@@ -1,7 +1,7 @@
 {
-  "name": "set-stocks-layer",
+  "name": "set-amz-stocks-layer",
   "version": "1.0.0",
-  "description": "Layer for set-stocks",
+  "description": "Layer for set-amz-stocks",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
