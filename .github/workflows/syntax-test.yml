@@ -13,15 +13,10 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install lambda dependencies
       run: npm i
-    - name: Install layer dependencies
-      run: |
-        cd layer/nodejs
-        npm i
-    - name: serverless-check
-      uses: kaskadi/action-slscli@master
+    - name: serverless check
+      uses: serverless/github-action@master
       with:
-        command: 'deploy --noDeploy'
-        should_throw: true
+        args: deploy --noDeploy
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_KEY_SECRET }}
