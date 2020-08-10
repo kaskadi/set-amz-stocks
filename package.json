@@ -4,7 +4,8 @@
   "description": "",
   "main": "serverless.yml",
   "scripts": {
-    "test": "echo \"No test script defined.\""
+    "test": "echo \"No test script defined.\"",
+    "preinstall": "bash install.sh"
   },
   "repository": {
     "type": "git",
