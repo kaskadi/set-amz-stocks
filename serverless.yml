@@ -50,3 +50,14 @@ functions:
       ES_ID: ${env:ES_ID}
       ES_SECRET: ${env:ES_SECRET}
       ES_ENDPOINT: ${env:ES_ENDPOINT}
+    events:
+      - sqs:
+          arn: !GetAtt AmzStocksUpdateQueue.Arn
+          batchSize: 1
+
+resources:
+  Resources:
+    AmzStocksUpdateQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: amz-stocks-update-queue
