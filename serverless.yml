@@ -54,10 +54,3 @@ functions:
       - sqs:
           arn: !GetAtt AmzStocksUpdateQueue.Arn
           batchSize: 1
-
-resources:
-  Resources:
-    AmzStocksUpdateQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: amz-stocks-update-queue
