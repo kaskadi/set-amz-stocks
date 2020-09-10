@@ -51,6 +51,10 @@ functions:
       ES_SECRET: ${env:ES_SECRET}
       ES_ENDPOINT: ${env:ES_ENDPOINT}
     events:
-      - sqs:
-          arn: !GetAtt AmzStocksUpdateQueue.Arn
-          batchSize: 1
+      - eventBridge:
+          eventBus: ${env:STOCKS_BUS_ARN}
+          pattern:
+            detail:
+              responsePayload:
+                stocksEventType:
+                  - 'amz-stocks-update'
