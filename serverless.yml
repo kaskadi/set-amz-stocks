@@ -20,7 +20,7 @@ provider:
     app: kaskadi
     service: ${self:service.name}
     logical-unit: stocks
-    type: invocation
+    type: eventBridge
 
 layers:
   SetAmzStocksLayer:
