@@ -20,7 +20,7 @@ provider:
     app: kaskadi
     service: ${self:service.name}
     logical-unit: stocks
-    type: invocation
+    type: eventBridge
 
 layers:
   SetAmzStocksLayer:
@@ -51,13 +51,10 @@ functions:
       ES_SECRET: ${env:ES_SECRET}
       ES_ENDPOINT: ${env:ES_ENDPOINT}
     events:
-      - sqs:
-          arn: !GetAtt AmzStocksUpdateQueue.Arn
-          batchSize: 1
-
-resources:
-  Resources:
-    AmzStocksUpdateQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: amz-stocks-update-queue
+      - eventBridge:
+          eventBus: ${env:STOCKS_BUS_ARN}
+          pattern:
+            detail:
+              responsePayload:
+                stocksEventType:
+                  - 'amz-stocks-update'

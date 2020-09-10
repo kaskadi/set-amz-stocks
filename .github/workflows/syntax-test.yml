@@ -23,3 +23,4 @@ jobs:
         ES_ID: ${{ secrets.ES_ID }}
         ES_SECRET: ${{ secrets.ES_SECRET }}
         ES_ENDPOINT: ${{ secrets.ES_ENDPOINT }}
+        STOCKS_BUS_ARN: ${{ secrets.EB_STOCKS_BUS_ARN }}
