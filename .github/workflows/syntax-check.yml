@@ -1,19 +1,20 @@
-name: syntax-test
+name: syntax-check
 on:
-  push:
+  pull_request:
     branches:
-      - '!master'
-      - '!release/**'
+      - 'master'
+      - 'dev'
+    types: [opened, reopened, edited, synchronize]
     paths:
       - 'serverless.yml'
 jobs:
-  test:
+  syntax-check:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Install lambda dependencies
       run: npm i
-    - name: serverless check
+    - name: serverless syntax check
       uses: serverless/github-action@master
       with:
         args: deploy --noDeploy
