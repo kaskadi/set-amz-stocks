@@ -1,4 +1,8 @@
-module.exports = ({ marketplace, marketplaceStockData }) => {
+module.exports = stockData => {
+  return stockData.flatMap(buildMarketplaceBulk)
+}
+
+function buildMarketplaceBulk ({ marketplace, marketplaceStockData }) {
   const warehouse = `amz_${marketplace.toLowerCase()}`
   return getStockBulkBody(warehouse, marketplaceStockData).concat(getWarehouseBulkBody(warehouse))
 }
