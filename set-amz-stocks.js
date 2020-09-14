@@ -4,7 +4,12 @@ module.exports.handler = async (event) => {
   console.log(JSON.stringify(event, null, 2))
   return await setStocks(createBulkBody(event.detail.responsePayload.stockData))
   .then(res => {
-    console.log(JSON.stringify(res, null, 2))
+    console.log(`Errors: ${res.body.errors}`)
+    const { items } = res.body
+    const successes = items.filter(item => item.update.status === 200)
+    const fails = items.filter(item => item.update.status !== 200)
+    console.log(JSON.stringify(successes, null, 2))
+    console.log(JSON.stringify(fails, null, 2))
     return res
   })
   .catch(err => {
