@@ -9,11 +9,43 @@ on:
       - 'set-amz-stocks.js'
       - 'helpers/**'
       - 'layer/**'
+      - 'docs/**'
 jobs:
-  deploy:
+  generate-docs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Import GPG key
+      uses: crazy-max/ghaction-import-gpg@v2
+      with:
+        git_user_signingkey: true
+        git_commit_gpgsign: true
+      env:
+        GPG_PRIVATE_KEY: ${{ secrets.KASKADI_BOT_GPG_PRIVATE_KEY }}
+        PASSPHRASE: ${{ secrets.KASKADI_BOT_GPG_PRIVATE_PASSPHRASE }}
+    - name: Generate documentation
+      uses: kaskadi/action-generate-docs@master
+      with:
+        type: lambda
+        template: docs/template.md
+      env:
+        ES_ID: ${{ secrets.ES_ID }}
+        ES_SECRET: ${{ secrets.ES_SECRET }}
+        ES_ENDPOINT: ${{ secrets.ES_ENDPOINT }}
+        STOCKS_BUS_ARN: ${{ secrets.EB_STOCKS_BUS_ARN }}
+  deploy:
+    runs-on: ubuntu-latest
+    needs: generate-docs
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12
+        registry-url: https://registry.npmjs.org/
+    - name: Pull latest commit
+      run: |
+        git config pull.rebase false
+        git pull
     - name: Install lambda dependencies
       run: npm i
     - name: serverless check
