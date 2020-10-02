@@ -35,7 +35,7 @@ The following layers are defined in this repository:
 
 |      Name      | Sources                        | Timeout |             Handler            | Layers                                                          |
 | :------------: | :----------------------------- | :-----: | :----------------------------: | :-------------------------------------------------------------- |
-| set-amz-stocks | <ul><li>Event Bridge</li></ul> |   30s   | [handler](./set-amz-stocks.js) | <ul><li>[set-amz-stocks-layer](#set-amz-stocks-layer)</li></ul> |
+| set-amz-stocks | <ul><li>event bridge</li></ul> |   30s   | [handler](./set-amz-stocks.js) | <ul><li>[set-amz-stocks-layer](#set-amz-stocks-layer)</li></ul> |
 
 See [configuration file](./serverless.yml) for more details.
 
