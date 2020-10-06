@@ -10,6 +10,13 @@ on:
       - 'helpers/**'
       - 'layer/**'
       - 'docs/**'
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_KEY_SECRET }}
+  ES_ID: ${{ secrets.ES_ID }}
+  ES_SECRET: ${{ secrets.ES_SECRET }}
+  ES_ENDPOINT: ${{ secrets.ES_ENDPOINT }}
+  STOCKS_BUS_ARN: ${{ secrets.EB_STOCKS_BUS_ARN }}
 jobs:
   generate-docs:
     runs-on: ubuntu-latest
@@ -28,11 +35,6 @@ jobs:
       with:
         type: lambda
         template: docs/template.md
-      env:
-        ES_ID: ${{ secrets.ES_ID }}
-        ES_SECRET: ${{ secrets.ES_SECRET }}
-        ES_ENDPOINT: ${{ secrets.ES_ENDPOINT }}
-        STOCKS_BUS_ARN: ${{ secrets.EB_STOCKS_BUS_ARN }}
   deploy:
     runs-on: ubuntu-latest
     needs: generate-docs
@@ -52,21 +54,7 @@ jobs:
       uses: serverless/github-action@master
       with:
         args: deploy --noDeploy
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_KEY_SECRET }}
-        ES_ID: ${{ secrets.ES_ID }}
-        ES_SECRET: ${{ secrets.ES_SECRET }}
-        ES_ENDPOINT: ${{ secrets.ES_ENDPOINT }}
-        STOCKS_BUS_ARN: ${{ secrets.EB_STOCKS_BUS_ARN }}
     - name: serverless deploy
       uses: serverless/github-action@master
       with:
         args: deploy -v
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_KEY_SECRET }}
-        ES_ID: ${{ secrets.ES_ID }}
-        ES_SECRET: ${{ secrets.ES_SECRET }}
-        ES_ENDPOINT: ${{ secrets.ES_ENDPOINT }}
-        STOCKS_BUS_ARN: ${{ secrets.EB_STOCKS_BUS_ARN }}
