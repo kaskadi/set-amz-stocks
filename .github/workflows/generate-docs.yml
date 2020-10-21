@@ -1,4 +1,4 @@
-name: deploy
+name: generate-docs
 on:
   push:
     branches:
@@ -8,8 +8,7 @@ on:
       - 'serverless.yml'
       - 'package.json'
       - 'layer/**'
-      - 'set-amz-stocks.js'
-      - 'helpers/**'
+      - 'docs/**'
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_KEY_SECRET }}
@@ -18,7 +17,7 @@ env:
   ES_ENDPOINT: ${{ secrets.ES_ENDPOINT }}
   STOCKS_BUS_ARN: ${{ secrets.EB_STOCKS_BUS_ARN }}
 jobs:
-  deploy:
+  generate-docs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -26,13 +25,22 @@ jobs:
       with:
         node-version: 12
         registry-url: https://registry.npmjs.org/
-    - name: Install lambda dependencies
+    - name: Install dependencies
       run: npm i
     - name: serverless check
       uses: serverless/github-action@master
       with:
         args: deploy --noDeploy
-    - name: serverless deploy
-      uses: serverless/github-action@master
+    - name: Import GPG key
+      uses: crazy-max/ghaction-import-gpg@v2
       with:
-        args: deploy -v
+        git_user_signingkey: true
+        git_commit_gpgsign: true
+      env:
+        GPG_PRIVATE_KEY: ${{ secrets.KASKADI_BOT_GPG_PRIVATE_KEY }}
+        PASSPHRASE: ${{ secrets.KASKADI_BOT_GPG_PRIVATE_PASSPHRASE }}
+    - name: Generate documentation
+      uses: kaskadi/action-generate-docs@master
+      with:
+        type: lambda
+        template: docs/template.md
