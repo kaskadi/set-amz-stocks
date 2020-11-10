@@ -21,5 +21,11 @@
   "bugs": {
     "url": "https://github.com/kaskadi/set-amz-stocks/issues"
   },
-  "homepage": "https://github.com/kaskadi/set-amz-stocks#readme"
+  "homepage": "https://github.com/kaskadi/set-amz-stocks#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
+    "nyc": "^15.1.0",
+    "standard": "^16.0.1"
+  }
 }
