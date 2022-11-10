@@ -24,7 +24,7 @@
   "homepage": "https://github.com/kaskadi/set-amz-stocks#readme",
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^8.2.1",
+    "mocha": "^10.1.0",
     "nyc": "^15.1.0",
     "standard": "^16.0.1"
   }
